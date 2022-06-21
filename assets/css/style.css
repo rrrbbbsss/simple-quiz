@@ -1,0 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #000000;
+    --secondary: #ffffff;
+
+    --header-primary: #44e9ff;
+    --header-secondary: #000000;
+
+    --button-primary: var(--parimary);
+    --button-secondary: #444444;
+    --button-primary-hover: var(--primary);
+    --button-secondary-hover: #777777;
+
+    --canvas-primary: var(--header-primary);
+    --canvas-secondary: var(--button-secondary);
+}
+
+body {
+    color: var(--primary);
+    background: var(--secondary);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* header start */
+header {
+    color: var(--header-primary);
+    background: var(--header-secondary);
+    padding: 20px;
+    margin: 20px 20px 0 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-button {
+    background: var(--button-secondary);
+    padding: 20px;
+}
+.header-button:hover {
+    color: var(--button-primary-hover);
+    background: var(--button-secondary-hover);
+}
+
+.timer { 
+    background: var(--button-secondary);
+    padding: 20px;
+}
+/* header end */
+
+/* canvas start */
+#canvas {
+    color: var(--canvas-primary);
+    background: var(--canvas-secondary);
+    margin: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+/* canvas stop */
+
+
+/* quiz start */
+/* quiz-title */
+/* quiz-question */
+/* quiz-over */
+/* quiz stop */
+
+/* high-score start */
+/* highscore title */
+/* highscore list */
+/* high-score end */
+
+/* utilities start */
+/* utilities end */
