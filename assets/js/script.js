@@ -90,3 +90,96 @@ var shuffleArray = function (array) {
     return array;
 };
 
+// delay the evaluation of the query, to control when to force a value
+var delayedElementQuery = function (selector) {
+    return function () {
+        return document.querySelector(selector);
+    };
+};
+
+// used to create/insert Elements from a specification
+var insertDynEl = function (elementSpec) {
+    var el = document.createElement(elementSpec.type);
+    el.id = elementSpec.id;
+    el.className = elementSpec.class;
+    el.innerHTML = elementSpec.innerHTML;
+    elementSpec.attributes.forEach(x => el.setAttribute(x.attr, x.value));
+    if (elementSpec.replaceChildren) {
+        elementSpec.parentEld().replaceChildren(el);
+    }
+    else {
+        elementSpec.parentEld().appendChild(el);
+    }
+}
+
+// Element Specification Class
+class ElSpec {
+    constructor(obj) {
+        this.type = obj.type || "div";
+        this.id = obj.id || "";
+        this.class = obj.class || "";
+        this.innerHTML = obj.innerHTML || "";
+        this.attributes = obj.attributes || [];
+        this.parentEld = obj.parentEld || this.getEld();
+        this.replaceChildren = obj.replaceChildren || false;
+        this.display = obj.display || function () {
+            insertDynEl(this);
+        }
+    }
+    getEld() {
+        return delayedElementQuery("#" + this.id);
+    }
+};
+
+// Container Class
+class Container {
+    constructor(obj) {
+        this.parentEld = obj.parentEld;
+        this.data = obj.data || {};
+        this.elSpecs = obj.elSpecs || [];
+        this.eventHandlers = obj.eventHandlers || [];
+        this.timeouts = obj.timeouts || [];
+        this.timer = obj.timer || {};
+        this.cleartimer = {};
+    }
+    display() {
+        this.elSpecs.forEach(x => x.display());
+    }
+    addHandlers() {
+        this.eventHandlers.forEach(x => {
+            var el = this.parentEld();
+            el.addEventListener(x.event, x.handler);
+        });
+    }
+    removeHandlers() {
+        this.eventHandlers.forEach(x => {
+            var el = this.parentEld();
+            el.removeEventListener(x.event, x.handler);
+        });
+    }
+    startTimers() {
+        this.cleartimer = setInterval(this.timer.func, this.timer.delay);
+    }
+    startTimeouts() {
+        this.timeouts.forEach(x => {
+            setTimeout(x.func, x.delay);
+        });
+    }
+}
+
+// Page Class
+class Page {
+    constructor(obj) {
+        this.headerLeft = obj.headerLeft || {};
+        this.headerRight = obj.headerRight || {};
+        this.canvas = obj.canvas || {};
+    }
+    display() {
+        this.headerLeft.display();
+        this.headerLeft.addHandlers();
+        this.headerRight.display();
+        this.headerRight.addHandlers();
+        this.canvas.display();
+        this.canvas.addHandlers();
+    }
+}
