@@ -314,3 +314,312 @@ var createDeleteHsButtonContainer = function (parentEld) {
     });
 };
 
+// canvas containers
+var createQuizStartContainer = function (parentEld) {
+    var quizStartSpec = new ElSpec({
+        type: "div",
+        id: "quizStartPage",
+        class: "page",
+        innerHTML: "",
+        parentEld: canvasEld,
+        replaceChildren: true
+    });
+    var quizStartEld = quizStartSpec.getEld();
+    var titleSpec = new ElSpec({
+        type: "h1",
+        id: "",
+        class: "quizTitle",
+        innerHTML: "Simple Coding Quiz",
+        parentEld: quizStartEld,
+        replaceChildren: false
+    });
+    var instructionsSpec = new ElSpec({
+        type: "p",
+        id: "",
+        class: "quizText",
+        innerHTML: "Try to answer the follwing code-related questions withint he time limit. Incorrect answers will penalize your score/time by 10 seconds.",
+        parentEld: quizStartEld,
+        replaceChildren: false
+    });
+    var startButtonSpec = new ElSpec({
+        type: "button",
+        id: "quizStartButton",
+        class: "button",
+        innerHTML: "Start Quiz",
+        parentEld: quizStartEld,
+        replaceChildren: false,
+    });
+    var startButtonHandler = {
+        event: "click",
+        handler: function (event) {
+            var target = event.target;
+            var matchQuery = "#" + startButtonSpec.id;
+            if (target.matches(matchQuery)) {
+                quizStartContainer.removeHandlers();
+                gotoQuizQuestion();
+                // start timer
+                quizTimerContainer.startTimers();
+            }
+        }
+    };
+    return new Container({
+        parentEld: parentEld,
+        data: {},
+        elSpecs: [
+            quizStartSpec,
+            titleSpec,
+            instructionsSpec,
+            startButtonSpec
+        ],
+        eventHandlers: [startButtonHandler]
+    });
+};
+
+var createQuizQuestionContainer = function (parentEld) {
+    var quizQuestionSpec = new ElSpec({
+        type: "div",
+        id: "quizQuestionPage",
+        class: "page",
+        innerHTML: "",
+        parentEld: parentEld,
+        replaceChildren: true
+    });
+    var quizQuestionEld = quizQuestionSpec.getEld();
+    var questionSpec = new ElSpec({
+        type: "h2",
+        id: "",
+        class: "quizQuestion",
+        innerHTML: quizData.getCurrentQuestion(),
+        parentEld: quizQuestionEld,
+        replaceChildren: false,
+        display: function () {
+            questionSpec.innerHTML = quizData.getCurrentQuestion();
+            insertDynEl(questionSpec);
+        }
+    });
+    var answerListSpec = new ElSpec({
+        type: "ol",
+        id: "answerList",
+        class: "quizAnswers",
+        innerHTML: "",
+        parentEld: quizQuestionEld,
+        replaceChildren: false
+    });
+    var answerListEld = answerListSpec.getEld();
+    var answerSpec = new ElSpec({
+        type: "li",
+        id: "",
+        class: "answers",
+        innerHTML: "",
+        parentEld: answerListEld,
+        replaceChildren: false,
+        display: function () {
+            shuffleArray(quizData.getAnswers()).forEach(x => {
+                answerSpec.innerHTML = x;
+                insertDynEl(answerSpec);
+            })
+        }
+    });
+    var feedbackSpec = new ElSpec({
+        type: "div",
+        id: "quizFeedback",
+        class: "feedback",
+        innerHTML: quizData.feedback,
+        parentEld: quizQuestionEld,
+        replaceChildren: false,
+        display: function () {
+            feedbackSpec.innerHTML = quizData.feedback;
+            insertDynEl(feedbackSpec);
+        }
+    });
+    var answerHandler = {
+        event: "click",
+        handler: function (event) {
+            var target = event.target;
+            var matchQuery = "." + answerSpec.class;
+            if (target.matches(matchQuery)) {
+                // validate the answer
+                var correct = quizData.getCorrect();
+                var answer = target.textContent === correct;
+                var nextQuestion = quizData.index += 1;
+                // add to score when needed and update feedback
+                if (answer) {
+                    quizData.score += 1;
+                    quizData.feedback = "Correct";
+                }
+                else {
+                    quizTimerContainer.data.timeLeft -= 5;
+                    quizData.feedback = "Incorrect";
+                }
+                // go to quiz end if questions are done
+                if (nextQuestion >= questions.length) {
+                    quizQuestionContainer.removeHandlers();
+                    gotoQuizEnd();
+                    quizEndContainer.startTimeouts();
+                    clearInterval(quizTimerContainer.cleartimer);
+                }
+                // else go to next question
+                else {
+                    quizQuestionContainer.removeHandlers();
+                    gotoQuizQuestion();
+                    //todo: clear timeouts
+                    quizQuestionContainer.startTimeouts();
+                }
+            }
+        }
+    };
+    var feedbackTimeout = {
+        delay: (1000),
+        func: function () {
+            var eld = feedbackSpec.getEld();
+            eld().textContent = "";
+        }
+    };
+    return new Container({
+        parentEld: parentEld,
+        elSpecs: [
+            quizQuestionSpec,
+            questionSpec,
+            answerListSpec,
+            answerSpec,
+            feedbackSpec
+        ],
+        eventHandlers: [answerHandler],
+        timeouts: [feedbackTimeout]
+    });
+};
+
+var createQuizEndContainer = function (parentEld) {
+    var quizEndPageSpec = new ElSpec({
+        type: "div",
+        id: "quizEndPage",
+        class: "page",
+        innerHTML: "",
+        parentEld: parentEld,
+        replaceChildren: true
+    });
+    var quizEndPageEld = quizEndPageSpec.getEld();
+    var titleSpec = new ElSpec({
+        type: "h2",
+        id: "",
+        class: "quizTitle",
+        innerHTML: "Quiz Completed",
+        parentEld: quizEndPageEld,
+        replaceChildren: false
+    });
+    var resultsSpec = new ElSpec({
+        type: "div",
+        id: "",
+        class: "quizText",
+        innerHTML: "",
+        parentEld: quizEndPageEld,
+        replaceChildren: false,
+        display: function () {
+            resultsSpec.innerHTML = "Your final score is: " +
+                computeScore(quizData.score, quizTimerContainer.data.timeLeft);
+            insertDynEl(resultsSpec);
+        }
+    });
+    var submitFormSpec = new ElSpec({
+        type: "form",
+        id: "submitForm",
+        class: "submitForm",
+        innerHTML: "<label for='initials'>Enter Initials:</label>" +
+            "<input type='text' id='initials' name='initials'>" +
+            "<input type='submit' value='Submit'>",
+        parentEld: quizEndPageEld,
+        replaceChildren: false
+    });
+    var feedbackSpec = new ElSpec({
+        type: "div",
+        id: "quizFeedback",
+        class: "feedback",
+        innerHTML: "",
+        parentEld: quizEndPageEld,
+        replaceChildren: false,
+        display: function () {
+            feedbackSpec.innerHTML = quizData.feedback;
+            insertDynEl(feedbackSpec);
+        }
+    });
+    var formHandler = {
+        event: "submit",
+        handler: function (event) {
+            event.preventDefault();
+            var target = event.target;
+            var matchQuery = "#" + submitFormSpec.id;
+            if (target.matches(matchQuery)) {
+                var initials = document.querySelector("input[name='initials']").value;
+                saveHighScores(initials, computeScore(quizData.score, quizTimerContainer.data.timeLeft));
+                quizEndContainer.removeHandlers();
+                gotoHighScores();
+
+            }
+
+        }
+    };
+    var feedbackTimeout = {
+        delay: (1000),
+        func: function () {
+            var eld = feedbackSpec.getEld();
+            eld().textContent = "";
+        }
+    };
+    return new Container({
+        parentEld: parentEld,
+        elSpecs: [
+            quizEndPageSpec,
+            titleSpec,
+            resultsSpec,
+            submitFormSpec,
+            feedbackSpec
+        ],
+        eventHandlers: [formHandler],
+        timeouts: [feedbackTimeout]
+    });
+};
+
+var createHighScoresContainer = function (parentEld) {
+    var highScorePageSpec = new ElSpec({
+        type: "div",
+        id: "highScorePage",
+        class: "page",
+        innerHTML: "",
+        parentEld: parentEld,
+        replaceChildren: true
+    });
+    var highScorePageEld = highScorePageSpec.getEld();
+    var highScoreListSpec = new ElSpec({
+        type: "ol",
+        id: "highScoreList",
+        class: "hightScoreList",
+        innerHTML: "",
+        parentEld: highScorePageEld,
+        replaceChildren: false
+    });
+    var highScoreListEld = highScoreListSpec.getEld();
+    var highScoreSpec = new ElSpec({
+        type: "li",
+        id: "",
+        class: "highScoreItem",
+        innerHTML: "",
+        parentEld: highScoreListEld,
+        replaceChildren: false,
+        display: function () {
+            loadHighScores().forEach(x => {
+                highScoreSpec.innerHTML = x.initials + " - " + x.score;
+                insertDynEl(highScoreSpec);
+            })
+        }
+    });
+    return new Container({
+        parentEld: parentEld,
+        elSpecs: [
+            highScorePageSpec,
+            highScoreListSpec,
+            highScoreSpec
+        ],
+        eventHandlers: [],
+        timeouts: []
+    });
+};
