@@ -1,4 +1,5 @@
-var qustions = [
+// the questions for the quiz
+var questions = [
     {
         question: "Commonly used data types DO NOT inlcude:",
         wrong: ["strings", "booleans", "numbers"],
@@ -24,5 +25,41 @@ var qustions = [
         wrong: ["JavaScript", "terminal/bash", "for loops"],
         correct: "console.log"
     }
+];
+
+// for holding quiz state and methods for doing this with it.
+var quizData = {
+    quizTotalTime: 30,
+    index: 0,
+    questions: questions,
+    score: 0,
+    feedback: "",
+    getCurrentQuestion: function () {
+        var index = this.index;
+        return this.questions[index].question;
+    },
+    getCorrect: function () {
+        var index = this.index;
+        return this.questions[index].correct;
+    },
+    getAnswers: function () {
+        var index = this.index;
+        var wrong = this.questions[index].wrong;
+        var correct = this.getCorrect();
+        var answers = wrong.concat([correct]);
+        return answers;
+    },
+    reset: function () {
+        this.index = 0;
+        this.score = 0;
+        this.feedback = "";
+    }
+};
+
+//compute total score based of quiz result and time left
+var computeScore = function (result, timeLeft) {
+    var result = Math.floor(100 * quizData.score / questions.length);
+    return timeLeft + result;
+};
 
 ];
