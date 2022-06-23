@@ -623,3 +623,42 @@ var createHighScoresContainer = function (parentEld) {
         timeouts: []
     });
 };
+
+// quiz flow functions
+var gotoHighScores = function () {
+    //todo just have a reset all handlers function
+    // and put it here and not in the handlers
+    // also just call all timeouts
+    //TODO
+    var highScorePage = new Page({
+        headerLeft: quizButtonContainer,
+        headerRight: deleteHsButtonContainer,
+        canvas: highScoresContainer
+    });
+    highScorePage.display();
+
+};
+var gotoQuizStart = function () {
+    var quizStartPage = new Page({
+        headerLeft: highScoreButtonContainer,
+        headerRight: quizTimerContainer,
+        canvas: quizStartContainer
+    });
+    quizStartPage.display();
+};
+var gotoQuizQuestion = function () {
+    var quizQuestionPage = new Page({
+        headerLeft: highScoreButtonContainer,
+        headerRight: quizTimerContainer,
+        canvas: quizQuestionContainer
+    });
+    quizQuestionPage.display();
+};
+var gotoQuizEnd = function () {
+    var quizEndPage = new Page({
+        headerLeft: highScoreButtonContainer,
+        headerRight: quizTimerContainer,
+        canvas: quizEndContainer
+    });
+    quizEndPage.display();
+};
