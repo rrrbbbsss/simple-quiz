@@ -183,3 +183,134 @@ class Page {
         this.canvas.addHandlers();
     }
 }
+
+// header containers
+var createHsButtonContainer = function (parentEld) {
+    var hsButtonSpec = new ElSpec({
+        type: "button",
+        id: "hsbutton",
+        class: "button",
+        innerHTML: "view high scores",
+        parentEld: parentEld,
+        replaceChildren: true
+    });
+    var buttonHandler = {
+        event: "click",
+        handler: function (event) {
+            highScoreButtonContainer.removeHandlers();
+            quizStartContainer.removeHandlers();
+            quizQuestionContainer.removeHandlers();
+            quizEndContainer.removeHandlers();
+            gotoHighScores();
+            // stop quiz timer
+            clearInterval(quizTimerContainer.cleartimer);
+        }
+    };
+    return new Container({
+        parentEld: parentEld,
+        data: {},
+        elSpecs: [hsButtonSpec],
+        eventHandlers: [buttonHandler]
+    });
+}
+
+var createQuizTimerContainer = function (parentEld) {
+    var timerData = {
+        startTime: quizData.quizTotalTime,
+        timeLeft: quizData.quizTotalTime,
+        reset: function () {
+            this.timeLeft = this.startTime;
+        }
+    };
+    var timerSpec = new ElSpec({
+        type: "div",
+        id: "timer",
+        class: "timer",
+        innerHTML: "",
+        parentEld: parentEld,
+        replaceChildren: true,
+        display: function () {
+            timerSpec.innerHTML = "time: <span id='time'>" + timerData.timeLeft + "</span>"
+            insertDynEl(timerSpec);
+        }
+    });
+    var timerInterval = function () {
+        var eld = delayedElementQuery("#time");
+        timerData.timeLeft -= 1;
+        if (timerData.timeLeft <= 0) {
+            gotoQuizEnd();
+            eld().textContent = 0;
+            clearInterval(quizTimerContainer.cleartimer);
+        }
+        else {
+            eld().textContent = timerData.timeLeft;
+        }
+    };
+    return new Container({
+        parentEld: parentEld,
+        data: timerData,
+        elSpecs: [timerSpec],
+        eventHandlers: [],
+        timer: { delay: 1000, func: timerInterval },
+    });
+}
+
+var createQuizButtonContainer = function (parentEld) {
+    var quizButtonSpec = new ElSpec({
+        type: "button",
+        id: "quizButton",
+        class: "button",
+        innerHTML: "Return to Quiz",
+        parentEld: parentEld,
+        replaceChildren: true
+    });
+    var buttonHandler = {
+        event: "click",
+        handler: function (event) {
+            var target = event.target;
+            var matchQuery = "#" + quizButtonSpec.id;
+            if (target.matches(matchQuery)) {
+                quizData.reset();
+                quizButtonContainer.removeHandlers();
+                // reset timer
+                quizTimerContainer.data.reset();
+                gotoQuizStart();
+            }
+        }
+    }
+    return new Container({
+        parentEld: parentEld,
+        elSpecs: [quizButtonSpec],
+        eventHandlers: [buttonHandler]
+    });
+};
+
+
+var createDeleteHsButtonContainer = function (parentEld) {
+    var deleteHsButtonSpec = new ElSpec({
+        type: "button",
+        id: "deleteHsButton",
+        class: "button",
+        innerHTML: "Delete High Scores",
+        parentEld: headerRightEld,
+        replaceChildren: true
+
+    });
+    var buttonHandler = {
+        event: "click",
+        handler: function (event) {
+            var target = event.target;
+            var matchQuery = "#" + deleteHsButtonSpec.id;
+            if (target.matches(matchQuery)) {
+                localStorage.setItem("highScores", JSON.stringify([]));
+                gotoHighScores();
+            }
+        }
+    }
+    return new Container({
+        parentEld: parentEld,
+        elSpecs: [deleteHsButtonSpec],
+        eventHandlers: [buttonHandler]
+    });
+};
+
