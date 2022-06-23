@@ -662,3 +662,23 @@ var gotoQuizEnd = function () {
     });
     quizEndPage.display();
 };
+
+// delayed starting elements
+var headerLeftEld = delayedElementQuery("#header-left");
+var headerRightEld = delayedElementQuery("#header-right");
+var canvasEld = delayedElementQuery("#canvas");
+
+// header containers
+var highScoreButtonContainer = createHsButtonContainer(headerLeftEld);
+var quizTimerContainer = createQuizTimerContainer(headerRightEld);
+var quizButtonContainer = createQuizButtonContainer(headerLeftEld);
+var deleteHsButtonContainer = createDeleteHsButtonContainer(headerRightEld);
+
+// canvas containers
+var quizStartContainer = createQuizStartContainer(canvasEld);
+var quizQuestionContainer = createQuizQuestionContainer(canvasEld);
+var quizEndContainer = createQuizEndContainer(canvasEld);
+var highScoresContainer = createHighScoresContainer(canvasEld);
+
+// start it up
+gotoQuizStart();
