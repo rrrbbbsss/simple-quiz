@@ -62,4 +62,19 @@ var computeScore = function (result, timeLeft) {
     return timeLeft + result;
 };
 
-];
+// save highscores
+var saveHighScores = function (initials, score) {
+    highScores = loadHighScores();
+    highScores.push({
+        // if null/empty string, use "Anon", else trim and if input was only whitespace, use "Anon"
+        initials: (initials || "Anon").trim() || "Anon",
+        score: score
+    });
+    localStorage.setItem("highScores", JSON.stringify(highScores));
+};
+
+// save highscores
+var loadHighScores = function () {
+    // todo: return a sorted array based off score
+    return JSON.parse(localStorage.getItem("highScores")) || [];
+};
