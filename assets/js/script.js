@@ -5,12 +5,12 @@ var questions = [
         wrong: ["strings", "booleans", "numbers"],
         correct: "alerts"
     },
-    { 
+    {
         question: "The condition in an if / else statement is enclosed with _____.",
         wrong: ["quotes", "curly brackets", "square brackets"],
         correct: "parenthesis"
     },
-    { 
+    {
         question: "Arrays in JavaScript can be used to store _____",
         wrong: ["numbers and strings", "other arrays", "booleans"],
         correct: "all of the above"
@@ -53,6 +53,7 @@ var quizData = {
         this.index = 0;
         this.score = 0;
         this.feedback = "";
+        shuffleArray(this.questions);
     }
 };
 
@@ -680,5 +681,6 @@ var quizQuestionContainer = createQuizQuestionContainer(canvasEld);
 var quizEndContainer = createQuizEndContainer(canvasEld);
 var highScoresContainer = createHighScoresContainer(canvasEld);
 
-// start it up
+// shuffle questions then start it up
+shuffleArray(quizData.questions);
 gotoQuizStart();
