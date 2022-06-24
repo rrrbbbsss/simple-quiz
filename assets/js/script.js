@@ -33,6 +33,7 @@ var quizData = {
     index: 0,
     questions: questions,
     result: 0,
+    penalty: 5,
     feedback: "",
     getCurrentQuestion: function () {
         var index = this.index;
@@ -210,8 +211,6 @@ var createHsButtonContainer = function (parentEld) {
             quizQuestionContainer.removeHandlers();
             quizEndContainer.removeHandlers();
             gotoHighScores();
-            // stop quiz timer
-//            clearInterval(quizTimerContainer.cleartimer);
             quizTimerContainer.clearTimers();
         }
     };
@@ -348,7 +347,8 @@ var createQuizStartContainer = function (parentEld) {
         type: "p",
         id: "",
         class: "quizText",
-        innerHTML: "Try to answer the follwing code-related questions withint he time limit. Incorrect answers will penalize your score/time by 10 seconds.",
+        innerHTML: "Try to answer the follwing code-related questions withint he time limit." +
+        "Incorrect answers will penalize your score/time by " + quizData.penalty + " seconds.",
         parentEld: quizStartEld,
         replaceChildren: false
     });
@@ -459,7 +459,7 @@ var createQuizQuestionContainer = function (parentEld) {
                     quizData.feedback = "Correct";
                 }
                 else {
-                    quizTimerContainer.data.timeLeft -= 5;
+                    quizTimerContainer.data.timeLeft -= quizData.penalty;
                     quizData.feedback = "Incorrect";
                 }
                 // go to quiz end if questions are done
@@ -468,7 +468,6 @@ var createQuizQuestionContainer = function (parentEld) {
                     quizQuestionContainer.clearTimeouts();
                     gotoQuizEnd();
                     quizEndContainer.startTimeouts();
-//                    clearInterval(quizTimerContainer.cleartimer);
                     quizTimerContainer.clearTimers();
                 }
                 // else go to next question
@@ -639,10 +638,10 @@ var createHighScoresContainer = function (parentEld) {
 
 // quiz flow functions
 var gotoHighScores = function () {
-    //todo just have a reset all handlers function
-    // and put it here and not in the handlers
-    // also just call all timeouts
-    //TODO
+    // todo: it would be better to move the housekeeping tasks
+    // of removing handlers/timers here.
+    // also defining the timers/handlers in one spot and not scattered
+    // throughout the container constructors would make it easier to read/manage.
     var highScorePage = new Page({
         headerLeft: quizButtonContainer,
         headerRight: deleteHsButtonContainer,
