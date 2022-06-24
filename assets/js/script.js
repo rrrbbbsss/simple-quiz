@@ -32,7 +32,7 @@ var quizData = {
     quizTotalTime: 30,
     index: 0,
     questions: questions,
-    score: 0,
+    result: 0,
     feedback: "",
     getCurrentQuestion: function () {
         var index = this.index;
@@ -51,7 +51,7 @@ var quizData = {
     },
     reset: function () {
         this.index = 0;
-        this.score = 0;
+        this.result = 0;
         this.feedback = "";
         shuffleArray(this.questions);
     }
@@ -59,8 +59,8 @@ var quizData = {
 
 //compute total score based of quiz result and time left
 var computeScore = function (result, timeLeft) {
-    var result = Math.floor(100 * quizData.score / questions.length);
-    return timeLeft + result;
+    var result = Math.floor(100 * result / quizData.questions.length);
+    return Math.max(0, timeLeft + result);
 };
 
 // save highscores
@@ -231,7 +231,8 @@ var createQuizTimerContainer = function (parentEld) {
         parentEld: parentEld,
         replaceChildren: true,
         display: function () {
-            timerSpec.innerHTML = "time: <span id='time'>" + timerData.timeLeft + "</span>"
+            var timeAdj = Math.max(0, timerData.timeLeft)
+            timerSpec.innerHTML = "time: <span id='time'>" + timeAdj  + "</span>";
             insertDynEl(timerSpec);
         }
     });
@@ -445,7 +446,7 @@ var createQuizQuestionContainer = function (parentEld) {
                 var nextQuestion = quizData.index += 1;
                 // add to score when needed and update feedback
                 if (answer) {
-                    quizData.score += 1;
+                    quizData.result += 1;
                     quizData.feedback = "Correct";
                 }
                 else {
@@ -517,7 +518,7 @@ var createQuizEndContainer = function (parentEld) {
         replaceChildren: false,
         display: function () {
             resultsSpec.innerHTML = "Your final score is: " +
-                computeScore(quizData.score, quizTimerContainer.data.timeLeft);
+                computeScore(quizData.result, quizTimerContainer.data.timeLeft);
             insertDynEl(resultsSpec);
         }
     });
@@ -551,7 +552,7 @@ var createQuizEndContainer = function (parentEld) {
             var matchQuery = "#" + submitFormSpec.id;
             if (target.matches(matchQuery)) {
                 var initials = document.querySelector("input[name='initials']").value;
-                saveHighScores(initials, computeScore(quizData.score, quizTimerContainer.data.timeLeft));
+                saveHighScores(initials, computeScore(quizData.result, quizTimerContainer.data.timeLeft));
                 quizEndContainer.removeHandlers();
                 gotoHighScores();
 
