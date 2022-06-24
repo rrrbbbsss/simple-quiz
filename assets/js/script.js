@@ -76,7 +76,6 @@ var saveHighScores = function (initials, score) {
 
 // save highscores
 var loadHighScores = function () {
-    // todo: return a sorted array based off score
     var scores = JSON.parse(localStorage.getItem("highScores")) || [];
     return scores.sort((a, b) => b.score - a.score);
 };
@@ -142,7 +141,8 @@ class Container {
         this.eventHandlers = obj.eventHandlers || [];
         this.timeouts = obj.timeouts || [];
         this.timer = obj.timer || {};
-        this.cleartimer = {};
+        this.timerID = {};
+        this.timeoutID = {};
     }
     display() {
         this.elSpecs.forEach(x => x.display());
@@ -160,12 +160,18 @@ class Container {
         });
     }
     startTimers() {
-        this.cleartimer = setInterval(this.timer.func, this.timer.delay);
+        this.timerID = setInterval(this.timer.func, this.timer.delay);
     }
     startTimeouts() {
         this.timeouts.forEach(x => {
-            setTimeout(x.func, x.delay);
+            this.timeoutID = setTimeout(x.func, x.delay);
         });
+    }
+    clearTimers() {
+        clearInterval(this.timerID);
+    }
+    clearTimeouts() {
+        clearTimeout(this.timeoutID);
     }
 }
 
@@ -205,7 +211,8 @@ var createHsButtonContainer = function (parentEld) {
             quizEndContainer.removeHandlers();
             gotoHighScores();
             // stop quiz timer
-            clearInterval(quizTimerContainer.cleartimer);
+//            clearInterval(quizTimerContainer.cleartimer);
+            quizTimerContainer.clearTimers();
         }
     };
     return new Container({
@@ -243,7 +250,8 @@ var createQuizTimerContainer = function (parentEld) {
         if (timerData.timeLeft <= 0) {
             gotoQuizEnd();
             eld().textContent = 0;
-            clearInterval(quizTimerContainer.cleartimer);
+            //clearInterval(quizTimerContainer.cleartimer);
+            quizTimerContainer.clearTimers();
         }
         else {
             eld().textContent = timerData.timeLeft;
@@ -457,15 +465,17 @@ var createQuizQuestionContainer = function (parentEld) {
                 // go to quiz end if questions are done
                 if (nextQuestion >= questions.length) {
                     quizQuestionContainer.removeHandlers();
+                    quizQuestionContainer.clearTimeouts();
                     gotoQuizEnd();
                     quizEndContainer.startTimeouts();
-                    clearInterval(quizTimerContainer.cleartimer);
+//                    clearInterval(quizTimerContainer.cleartimer);
+                    quizTimerContainer.clearTimers();
                 }
                 // else go to next question
                 else {
                     quizQuestionContainer.removeHandlers();
+                    quizQuestionContainer.clearTimeouts();
                     gotoQuizQuestion();
-                    //todo: clear timeouts
                     quizQuestionContainer.startTimeouts();
                 }
             }
