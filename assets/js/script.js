@@ -77,7 +77,8 @@ var saveHighScores = function (initials, score) {
 // save highscores
 var loadHighScores = function () {
     // todo: return a sorted array based off score
-    return JSON.parse(localStorage.getItem("highScores")) || [];
+    var scores = JSON.parse(localStorage.getItem("highScores")) || [];
+    return scores.sort((a, b) => b.score - a.score);
 };
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array

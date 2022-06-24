@@ -6,25 +6,25 @@
 
 :root {
     --primary: #000000;
-    --secondary: #ffffff;
+    --secondary: #5259A4;
 
     --header-primary: #44e9ff;
     --header-secondary: #000000;
 
-    --button-primary: var(--primary);
+    --button-primary: var(--header-primary);
     --button-secondary: #444444;
-    --button-primary-hover: var(--primary);
+    --button-primary-hover: #ffffff;
     --button-secondary-hover: #777777;
 
     --canvas-primary: var(--header-primary);
-    --canvas-secondary: var(--button-secondary);
+    --canvas-secondary: #333333;
 
     --answers-primary:var(--header-primary);
     --answers-secondary: var(--header-secondary);
-    --answers-primary-hover: #ffffff;
-    --answers-secondary-hover: #777777;
+    --answers-primary-hover: var(--button-primary-hover);
+    --answers-secondary-hover: var(--button-secondary-hover);
 
-    --feedback-primary:#ffffff;
+    --feedback-primary: var(--button-primary-hover);
 
     --highScore-primary:var(--header-primary);
     --highScore-secondary: var(--header-secondary);
